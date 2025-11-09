@@ -4,25 +4,22 @@ let timer = null;
 let remainingTime = 0;
 let focusActive = false;
 let statusBarItem;
-let totalDuration = 0; 
+let totalDuration = 0;
 let contextGlobal;
 
+
 function activate(context) {
-    
-
     console.log('✅ Focus Mode extension activated');
-
     contextGlobal = context;
-
 
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     statusBarItem.command = 'focusMode.toggle';
     context.subscriptions.push(statusBarItem);
 
 
-    const disposable = vscode.commands.registerCommand('focusMode.toggle', async () => {
+    const disposable = vscode.commands.registerCommand('focusMode.toggle', () => {
         if (!focusActive) {
-            const input = await vscode.window.showInputBox({
+            vscode.window.showInputBox({
                 prompt: 'Введите длительность фокус-сессии (в минутах)',
                 placeHolder: 'например: 25',
                 validateInput: value => {
@@ -31,23 +28,22 @@ function activate(context) {
                     if (num > 180) return 'Максимум 180 минут';
                     return null;
                 }
+            }).then(input => {
+                if (!input) {
+                    vscode.window.showInformationMessage('⏹ Focus Mode не запущен (время не указано).');
+                    return;
+                }
+
+                const duration = parseInt(input);
+                totalDuration = duration;
+                remainingTime = duration * 60;
+                focusActive = true;
+
+                vscode.commands.executeCommand('workbench.action.closeSidebar');
+                vscode.commands.executeCommand('workbench.action.closePanel');
+
+                startTimer();
             });
-
-            if (!input) {
-                vscode.window.showInformationMessage('⏹ Focus Mode не запущен (время не указано).');
-                return;
-            }
-
-            const duration = parseInt(input);
-            totalDuration = duration;
-            remainingTime = duration * 60;
-            focusActive = true;
-
-
-            await vscode.commands.executeCommand('workbench.action.closeSidebar');
-            await vscode.commands.executeCommand('workbench.action.closePanel');
-
-            startTimer();
         } else {
             stopFocusMode();
         }
@@ -82,6 +78,7 @@ function startTimer() {
 function stopFocusMode() {
     focusActive = false;
     stopTimer();
+    vscode.window.showInformationMessage('🛑 Focus Mode выключен.');
 }
 
 
@@ -94,6 +91,7 @@ function stopTimer() {
         statusBarItem.hide();
     }
 }
+
 
 
 function updateStatusBar() {
@@ -129,9 +127,13 @@ function showReport(context) {
     const sessions = context.globalState.get('focusSessions', []);
     let html = `<h1>Focus Mode Report</h1>`;
     html += `<ul>`;
-    sessions.forEach(s => {
-        html += `<li>${s.date} - ${s.duration} мин - ${s.file}</li>`;
-    });
+    if (sessions.length === 0) {
+        html += `<li>Пока нет завершённых сессий.</li>`;
+    } else {
+        sessions.forEach(s => {
+            html += `<li>${s.date} — ${s.duration} мин — ${s.file}</li>`;
+        });
+    }
     html += `</ul>`;
     panel.webview.html = html;
 }
