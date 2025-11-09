@@ -1,0 +1,34 @@
+{
+  "name": "focus-mode",
+  "displayName": "Focus Mode",
+  "description": "Плагин для фокус-сессий с таймером и статистикой",
+  "version": "0.0.1",
+  "publisher": "bxrzzz",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onCommand:focusMode.toggle"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "focusMode.toggle",
+        "title": "Toggle Focus Mode"
+      },
+      {
+        "command": "focusMode.showReport",
+        "title": "Show Focus Mode Report"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "focusMode.toggle",
+        "key": "f5",
+        "when": "editorTextFocus"
+      }
+    ]
+  }
+}
