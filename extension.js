@@ -7,6 +7,7 @@ let statusBarItem;
 
 
 function activate(context) {
+    ///Активация плагина Focus Mode. Регестрирует команды и инициализирует элементы интерфейса///
     console.log('✅ Focus Mode activated');
 
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -28,6 +29,7 @@ function activate(context) {
 
 
 function startFocus(value) {
+    /// Запускается режим фокусировки и таймер обратного отсчета///
     if (!value) {
         vscode.window.showInformationMessage('⏹ Время не указано.');
         return;
@@ -59,6 +61,7 @@ function startFocus(value) {
 
 
 function stopFocusMode() {
+    /// Останавливает фокус-режим и очищает таймер///
     if (timer) {
         clearInterval(timer);
         timer = null;
@@ -70,6 +73,7 @@ function stopFocusMode() {
 
 
 function updateStatusBar() {
+    /// Обновляет текст и отображение таймера в строке состояния в VScode///
     if (!statusBarItem) return;
     const minutes = Math.floor(remainingTime / 60);
     const seconds = remainingTime % 60;
@@ -79,6 +83,7 @@ function updateStatusBar() {
 
 
 function deactivate() {
+    /// Деактивирует плагин при его отключении в Vscode///
     stopFocusMode();
 }
 
